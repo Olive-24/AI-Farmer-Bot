@@ -1,6 +1,10 @@
 from fastapi import FastAPI
+from routes.mandi_routes import router as mandi_router
 
 app = FastAPI()
+
+app.include_router(mandi_router)
+
 
 @app.get("/")
 def home():

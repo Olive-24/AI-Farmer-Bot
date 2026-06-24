@@ -1,0 +1,242 @@
+{
+    "created": 1627939168,
+    "updated": 1781870543,
+    "created_date": "2021-08-02T21:19:28Z",
+    "updated_date": "2026-06-19T12:02:23Z",
+    "active": "1",
+    "index_name": "9ef84268-d588-465a-a308-a864a43d0070",
+    "org": [
+        "Ministry of Agriculture and Farmers Welfare",
+        "Department of Agriculture and Farmers Welfare"
+    ],
+    "org_type": "Central",
+    "source": "data.gov.in",
+    "title": "Current Daily Price of Various Commodities from Various Markets (Mandi)",
+    "external_ws_url": "",
+    "visualizable": "1",
+    "field": [
+        {
+            "name": "State",
+            "id": "state",
+            "type": "keyword"
+        },
+        {
+            "name": "District",
+            "id": "district",
+            "type": "keyword"
+        },
+        {
+            "name": "Market",
+            "id": "market",
+            "type": "keyword"
+        },
+        {
+            "name": "Commodity",
+            "id": "commodity",
+            "type": "keyword"
+        },
+        {
+            "name": "Variety",
+            "id": "variety",
+            "type": "keyword"
+        },
+        {
+            "name": "Grade",
+            "id": "grade",
+            "type": "keyword"
+        },
+        {
+            "name": "Arrival_Date",
+            "id": "arrival_date",
+            "type": "date"
+        },
+        {
+            "name": "Min_x0020_Price",
+            "id": "min_price",
+            "type": "double"
+        },
+        {
+            "name": "Max_x0020_Price",
+            "id": "max_price",
+            "type": "double"
+        },
+        {
+            "name": "Modal_x0020_Price",
+            "id": "modal_price",
+            "type": "double"
+        }
+    ],
+    "external_ws": 0,
+    "catalog_uuid": "6141ea17-a69d-4713-b600-0a43c8fd9a6c",
+    "sector": [
+        "Agriculture",
+        "Agricultural Marketing"
+    ],
+    "target_bucket": {
+        "field": "9ef84268-d588-465a-a308-a864a43d0070",
+        "index": "daily_mandi_price",
+        "type": "6141ea17-a69d-4713-b600-0a43c8fd9a6c"
+    },
+    "desc": "Current Daily Price of Various Commodities from Various Markets (Mandi)",
+    "field_exposed": [
+        {
+            "name": "State",
+            "id": "state.keyword",
+            "type": "keyword"
+        },
+        {
+            "name": "District",
+            "id": "district",
+            "type": "keyword"
+        },
+        {
+            "name": "Market",
+            "id": "market",
+            "type": "keyword"
+        },
+        {
+            "name": "Commodity",
+            "id": "commodity",
+            "type": "keyword"
+        },
+        {
+            "name": "Variety",
+            "id": "variety",
+            "type": "keyword"
+        },
+        {
+            "name": "Grade",
+            "id": "grade",
+            "type": "keyword"
+        }
+    ],
+    "message": "Resource lists",
+    "version": "2.2.0",
+    "status": "ok",
+    "total": 563,
+    "count": 10,
+    "limit": 10,
+    "offset": "0",
+    "records": [
+        {
+            "state": "Madhya Pradesh",
+            "district": "Indore",
+            "market": "Sanwer(F&V) APMC",
+            "commodity": "Tomato",
+            "variety": "Tomato",
+            "grade": "Grade A",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 1500,
+            "max_price": 2500,
+            "modal_price": 2000
+        },
+        {
+            "state": "Odisha",
+            "district": "Rayagada",
+            "market": "Gunpur APMC",
+            "commodity": "Tomato",
+            "variety": "Local",
+            "grade": "Grade C",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 3540,
+            "max_price": 4150,
+            "modal_price": 3840
+        },
+        {
+            "state": "Karnataka",
+            "district": "Davangere",
+            "market": "Davangere APMC",
+            "commodity": "Tomato",
+            "variety": "Tomato",
+            "grade": "Local",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 900,
+            "max_price": 3200,
+            "modal_price": 2200
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Kota",
+            "market": "Kota (F&V) APMC",
+            "commodity": "Tomato",
+            "variety": "Other",
+            "grade": "Medium",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 4000,
+            "max_price": 4000,
+            "modal_price": 4000
+        },
+        {
+            "state": "Rajasthan",
+            "district": "Jalore",
+            "market": "Jalore APMC",
+            "commodity": "Tomato",
+            "variety": "Tomato",
+            "grade": "Local",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 1500,
+            "max_price": 2000,
+            "modal_price": 1800
+        },
+        {
+            "state": "Keralam",
+            "district": "Kottayam",
+            "market": "Thalayolaparambu Market",
+            "commodity": "Tomato",
+            "variety": "Tomato",
+            "grade": "FAQ",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 5000,
+            "max_price": 5400,
+            "modal_price": 5200
+        },
+        {
+            "state": "Assam",
+            "district": "Darrang",
+            "market": "Besimari APMC",
+            "commodity": "Tomato",
+            "variety": "Tomato",
+            "grade": "Local",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 3000,
+            "max_price": 3500,
+            "modal_price": 3200
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dharmapuri",
+            "market": "Karimangalam(Uzhavar Sandhai)",
+            "commodity": "Tomato",
+            "variety": "Local",
+            "grade": "Local",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 2800,
+            "max_price": 3000,
+            "modal_price": 2900
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dharmapuri",
+            "market": "Palacode(Uzhavar Sandhai )",
+            "commodity": "Tomato",
+            "variety": "Deshi",
+            "grade": "Local",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 2800,
+            "max_price": 3000,
+            "modal_price": 2900
+        },
+        {
+            "state": "Tamil Nadu",
+            "district": "Dindigul",
+            "market": "Chinnalapatti(Uzhavar Sandhai )",
+            "commodity": "Tomato",
+            "variety": "Deshi",
+            "grade": "Local",
+            "arrival_date": "19\/06\/2026",
+            "min_price": 3000,
+            "max_price": 3200,
+            "modal_price": 3100
+        }
+    ]
+}

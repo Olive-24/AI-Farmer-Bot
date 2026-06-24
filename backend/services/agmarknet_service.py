@@ -1,74 +1,145 @@
-# Mock mandi price data (jab tak real API key nahi milti)
-# Real Agmarknet API jaisa hi structure hai - baad mein easily swap ho jayega
+import os
+import requests
+from dotenv import load_dotenv
 
+load_dotenv()
+
+API_KEY = os.getenv("AGMARKNET_API_KEY")
+RESOURCE_ID = os.getenv("AGMARKNET_RESOURCE_ID")
+BASE_URL = f"https://api.data.gov.in/resource/{RESOURCE_ID}"
+
+TRANSPORT_COST_PER_KM_PER_QUINTAL = 4  # ₹ per km per quintal (estimate)
+PAGE_SIZE = 10  # API ki hard limit per request
+
+
+# ---------------------------------------------------------
+# MOCK DATA — fallback jab real govt API slow/down ho
+# ---------------------------------------------------------
 MOCK_MANDI_DATA = {
     "wheat": [
-        {"mandi": "Karnal", "state": "Haryana", "min_price": 2280, "max_price": 2380, "modal_price": 2340, "distance_km": 0},
-        {"mandi": "Ambala", "state": "Haryana", "min_price": 2450, "max_price": 2560, "modal_price": 2510, "distance_km": 38},
-        {"mandi": "Panipat", "state": "Haryana", "min_price": 2300, "max_price": 2400, "modal_price": 2360, "distance_km": 22},
-        {"mandi": "Sonipat", "state": "Haryana", "min_price": 2310, "max_price": 2410, "modal_price": 2365, "distance_km": 30},
-        {"mandi": "Kurukshetra", "state": "Haryana", "min_price": 2400, "max_price": 2490, "modal_price": 2450, "distance_km": 55},
-        {"mandi": "Hisar", "state": "Haryana", "min_price": 2260, "max_price": 2350, "modal_price": 2305, "distance_km": 90},
-        {"mandi": "Delhi Azadpur", "state": "Delhi", "min_price": 2380, "max_price": 2470, "modal_price": 2420, "distance_km": 70},
+        {"mandi": "Karnal", "state": "Haryana", "district": "Karnal", "min_price": 2280, "max_price": 2380, "modal_price": 2340, "arrival_date": "mock"},
+        {"mandi": "Ambala", "state": "Haryana", "district": "Ambala", "min_price": 2450, "max_price": 2560, "modal_price": 2510, "arrival_date": "mock"},
+        {"mandi": "Panipat", "state": "Haryana", "district": "Panipat", "min_price": 2300, "max_price": 2400, "modal_price": 2360, "arrival_date": "mock"},
+        {"mandi": "Sonipat", "state": "Haryana", "district": "Sonipat", "min_price": 2310, "max_price": 2410, "modal_price": 2365, "arrival_date": "mock"},
+        {"mandi": "Delhi Azadpur", "state": "Delhi", "district": "Delhi", "min_price": 2380, "max_price": 2470, "modal_price": 2420, "arrival_date": "mock"},
     ],
     "onion": [
-        {"mandi": "Nashik", "state": "Maharashtra", "min_price": 2000, "max_price": 2150, "modal_price": 2080, "distance_km": 45},
-        {"mandi": "Pune", "state": "Maharashtra", "min_price": 1950, "max_price": 2050, "modal_price": 2000, "distance_km": 0},
-        {"mandi": "Lasalgaon", "state": "Maharashtra", "min_price": 2050, "max_price": 2200, "modal_price": 2120, "distance_km": 60},
-        {"mandi": "Solapur", "state": "Maharashtra", "min_price": 1900, "max_price": 2020, "modal_price": 1960, "distance_km": 85},
-        {"mandi": "Indore", "state": "Madhya Pradesh", "min_price": 1850, "max_price": 1980, "modal_price": 1920, "distance_km": 250},
-        {"mandi": "Bengaluru", "state": "Karnataka", "min_price": 2100, "max_price": 2250, "modal_price": 2180, "distance_km": 620},
+        {"mandi": "Nashik", "state": "Maharashtra", "district": "Nashik", "min_price": 2000, "max_price": 2150, "modal_price": 2080, "arrival_date": "mock"},
+        {"mandi": "Pune", "state": "Maharashtra", "district": "Pune", "min_price": 1950, "max_price": 2050, "modal_price": 2000, "arrival_date": "mock"},
+        {"mandi": "Lasalgaon", "state": "Maharashtra", "district": "Nashik", "min_price": 2050, "max_price": 2200, "modal_price": 2120, "arrival_date": "mock"},
+        {"mandi": "Indore", "state": "Madhya Pradesh", "district": "Indore", "min_price": 1850, "max_price": 1980, "modal_price": 1920, "arrival_date": "mock"},
     ],
     "tomato": [
-        {"mandi": "Kolar", "state": "Karnataka", "min_price": 1200, "max_price": 1400, "modal_price": 1300, "distance_km": 0},
-        {"mandi": "Bangalore", "state": "Karnataka", "min_price": 1350, "max_price": 1500, "modal_price": 1420, "distance_km": 65},
-        {"mandi": "Madanapalle", "state": "Andhra Pradesh", "min_price": 1280, "max_price": 1450, "modal_price": 1360, "distance_km": 180},
-        {"mandi": "Nashik", "state": "Maharashtra", "min_price": 1150, "max_price": 1320, "modal_price": 1240, "distance_km": 320},
+        {"mandi": "Kolar", "state": "Karnataka", "district": "Kolar", "min_price": 1200, "max_price": 1400, "modal_price": 1300, "arrival_date": "mock"},
+        {"mandi": "Bangalore", "state": "Karnataka", "district": "Bangalore", "min_price": 1350, "max_price": 1500, "modal_price": 1420, "arrival_date": "mock"},
+        {"mandi": "Madanapalle", "state": "Andhra Pradesh", "district": "Annamayya", "min_price": 1280, "max_price": 1450, "modal_price": 1360, "arrival_date": "mock"},
+        {"mandi": "Nashik", "state": "Maharashtra", "district": "Nashik", "min_price": 1150, "max_price": 1320, "modal_price": 1240, "arrival_date": "mock"},
     ],
     "potato": [
-        {"mandi": "Agra", "state": "Uttar Pradesh", "min_price": 980, "max_price": 1100, "modal_price": 1040, "distance_km": 0},
-        {"mandi": "Farrukhabad", "state": "Uttar Pradesh", "min_price": 1020, "max_price": 1150, "modal_price": 1085, "distance_km": 75},
-        {"mandi": "Hooghly", "state": "West Bengal", "min_price": 950, "max_price": 1080, "modal_price": 1010, "distance_km": 1100},
-        {"mandi": "Indore", "state": "Madhya Pradesh", "min_price": 990, "max_price": 1120, "modal_price": 1055, "distance_km": 520},
+        {"mandi": "Agra", "state": "Uttar Pradesh", "district": "Agra", "min_price": 980, "max_price": 1100, "modal_price": 1040, "arrival_date": "mock"},
+        {"mandi": "Farrukhabad", "state": "Uttar Pradesh", "district": "Farrukhabad", "min_price": 1020, "max_price": 1150, "modal_price": 1085, "arrival_date": "mock"},
+        {"mandi": "Indore", "state": "Madhya Pradesh", "district": "Indore", "min_price": 990, "max_price": 1120, "modal_price": 1055, "arrival_date": "mock"},
     ],
     "rice": [
-        {"mandi": "Karnal", "state": "Haryana", "min_price": 3100, "max_price": 3300, "modal_price": 3200, "distance_km": 0},
-        {"mandi": "Kaithal", "state": "Haryana", "min_price": 3150, "max_price": 3350, "modal_price": 3260, "distance_km": 45},
-        {"mandi": "Amritsar", "state": "Punjab", "min_price": 3200, "max_price": 3420, "modal_price": 3310, "distance_km": 250},
-        {"mandi": "Raipur", "state": "Chhattisgarh", "min_price": 2950, "max_price": 3150, "modal_price": 3050, "distance_km": 900},
+        {"mandi": "Karnal", "state": "Haryana", "district": "Karnal", "min_price": 3100, "max_price": 3300, "modal_price": 3200, "arrival_date": "mock"},
+        {"mandi": "Amritsar", "state": "Punjab", "district": "Amritsar", "min_price": 3200, "max_price": 3420, "modal_price": 3310, "arrival_date": "mock"},
+        {"mandi": "Raipur", "state": "Chhattisgarh", "district": "Raipur", "min_price": 2950, "max_price": 3150, "modal_price": 3050, "arrival_date": "mock"},
     ],
-    "sugarcane": [
-        {"mandi": "Muzaffarnagar", "state": "Uttar Pradesh", "min_price": 340, "max_price": 360, "modal_price": 350, "distance_km": 0},
-        {"mandi": "Meerut", "state": "Uttar Pradesh", "min_price": 345, "max_price": 365, "modal_price": 355, "distance_km": 35},
-        {"mandi": "Kolhapur", "state": "Maharashtra", "min_price": 320, "max_price": 340, "modal_price": 330, "distance_km": 1400},
-    ],
-    "cotton": [
-        {"mandi": "Adilabad", "state": "Telangana", "min_price": 6800, "max_price": 7200, "modal_price": 7000, "distance_km": 0},
-        {"mandi": "Akola", "state": "Maharashtra", "min_price": 6900, "max_price": 7300, "modal_price": 7100, "distance_km": 220},
-        {"mandi": "Rajkot", "state": "Gujarat", "min_price": 7000, "max_price": 7400, "modal_price": 7200, "distance_km": 950},
-    ],
-    "maize": [
-        {"mandi": "Davangere", "state": "Karnataka", "min_price": 1900, "max_price": 2050, "modal_price": 1980, "distance_km": 0},
-        {"mandi": "Nizamabad", "state": "Telangana", "min_price": 1850, "max_price": 2000, "modal_price": 1920, "distance_km": 280},
-        {"mandi": "Davanagere Rural", "state": "Karnataka", "min_price": 1920, "max_price": 2070, "modal_price": 2000, "distance_km": 15},
+    "cabbage": [
+        {"mandi": "Mukkom Market", "state": "Keralam", "district": "Kozhikode", "min_price": 2400, "max_price": 2600, "modal_price": 2500, "arrival_date": "mock"},
+        {"mandi": "Bangalore", "state": "Karnataka", "district": "Bangalore", "min_price": 2200, "max_price": 2450, "modal_price": 2320, "arrival_date": "mock"},
     ],
 }
 
 
-def get_mandi_prices(crop: str):
-    """
-    Crop ka naam leke uske saare mandi prices return karta hai.
-    Real API integration ke time, yeh function sirf andar se change hoga -
-    baahar se call karne wala code same rahega.
-    """
-    crop = crop.lower().strip()
+def get_mock_prices(crop: str):
+    crop = crop.strip().lower()
     return MOCK_MANDI_DATA.get(crop, [])
 
 
+# ---------------------------------------------------------
+# REAL API — Agmarknet se live data
+# ---------------------------------------------------------
+def fetch_raw_records(max_pages: int = 5, timeout_seconds: int = 8):
+    """
+    Bina filter ke, multiple pages fetch karta hai (govt API ka filter unreliable hai).
+    timeout_seconds kam rakha hai (8 sec) taaki overall request zyada na latke -
+    agar govt server slow hai, hum jaldi give up karke mock data pe switch karenge.
+    """
+    all_records = []
+
+    for page in range(max_pages):
+        offset = page * PAGE_SIZE
+        params = {
+            "api-key": API_KEY,
+            "format": "json",
+            "limit": PAGE_SIZE,
+            "offset": offset,
+        }
+
+        try:
+            response = requests.get(BASE_URL, params=params, timeout=timeout_seconds)
+            if response.status_code != 200:
+                print(f"Page {page}: status {response.status_code}")
+                continue
+            data = response.json()
+        except (requests.exceptions.RequestException, ValueError) as e:
+            print(f"Page {page} error: {e}")
+            continue
+
+        records = data.get("records", [])
+        if not records:
+            break
+
+        all_records.extend(records)
+
+    return all_records
+
+
+def get_real_prices(crop: str, max_pages: int = 5):
+    crop = crop.strip().lower()
+    raw_records = fetch_raw_records(max_pages=max_pages)
+
+    mandis = []
+    for r in raw_records:
+        commodity_name = str(r.get("commodity", "")).strip().lower()
+        if crop in commodity_name or commodity_name in crop:
+            mandis.append({
+                "mandi": r.get("market", "Unknown"),
+                "state": r.get("state", "Unknown"),
+                "district": r.get("district", "Unknown"),
+                "min_price": float(r.get("min_price", 0)),
+                "max_price": float(r.get("max_price", 0)),
+                "modal_price": float(r.get("modal_price", 0)),
+                "arrival_date": r.get("arrival_date", ""),
+            })
+    return mandis
+
+
+# ---------------------------------------------------------
+# HYBRID — real API try karo, fail ho toh mock data do
+# ---------------------------------------------------------
+def get_mandi_prices(crop: str, max_pages: int = 5):
+    """
+    Pehle real Agmarknet API try karta hai. Agar woh empty/fail ho jaye
+    (govt server slow/down), automatically mock data pe fallback karta hai.
+    Response mein 'source' field bata deta hai data kahan se aaya.
+    """
+    real_prices = get_real_prices(crop, max_pages=max_pages)
+
+    if real_prices:
+        for p in real_prices:
+            p["source"] = "live_api"
+        return real_prices
+
+    # Fallback to mock data
+    mock_prices = get_mock_prices(crop)
+    for p in mock_prices:
+        p["source"] = "mock_fallback"
+    return mock_prices
+
+
 def get_best_mandi(crop: str):
-    """
-    Sabse zyada modal_price wali mandi return karta hai.
-    """
     prices = get_mandi_prices(crop)
     if not prices:
         return None
@@ -76,8 +147,52 @@ def get_best_mandi(crop: str):
     return best
 
 
-def get_available_crops():
+def get_best_mandi_smart(crop: str, quantity_quintal: float = 1):
     """
-    Saare crops ki list return karta hai jinka data available hai.
+    Net profit (price - transport cost) ke hisaab se best mandi suggest karta hai.
     """
-    return list(MOCK_MANDI_DATA.keys())
+    prices = get_mandi_prices(crop)
+    if not prices:
+        return None
+
+    results = []
+    for mandi in prices:
+        distance_km = 0  # Future: Maps API se actual distance
+        transport_cost_per_quintal = distance_km * TRANSPORT_COST_PER_KM_PER_QUINTAL
+        net_price_per_quintal = mandi["modal_price"] - transport_cost_per_quintal
+
+        results.append({
+            "mandi": mandi["mandi"],
+            "state": mandi["state"],
+            "district": mandi["district"],
+            "modal_price": mandi["modal_price"],
+            "distance_km": distance_km,
+            "net_price_per_quintal": round(net_price_per_quintal, 2),
+            "arrival_date": mandi["arrival_date"],
+            "source": mandi.get("source", "unknown"),
+        })
+
+    results.sort(key=lambda x: x["net_price_per_quintal"], reverse=True)
+
+    return {
+        "best_option": results[0] if results else None,
+        "all_options": results
+    }
+
+
+def get_available_crops(max_pages: int = 5):
+    """
+    Real API se commodities list karta hai. Fail hone par mock data ke crops deta hai.
+    """
+    raw_records = fetch_raw_records(max_pages=max_pages)
+    crops = set()
+    for r in raw_records:
+        commodity_name = r.get("commodity", "").strip()
+        if commodity_name:
+            crops.add(commodity_name)
+
+    if crops:
+        return sorted(list(crops))
+
+    # Fallback
+    return sorted([c.capitalize() for c in MOCK_MANDI_DATA.keys()])

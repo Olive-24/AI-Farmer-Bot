@@ -1,5 +1,6 @@
+from services.agmarknet_service import get_mandi_prices, get_best_mandi, get_available_crops, get_best_mandi_smart, evaluate_trader_offer
 from fastapi import APIRouter, HTTPException
-from services.agmarknet_service import get_mandi_prices, get_best_mandi, get_available_crops
+from services.agmarknet_service import get_mandi_prices, get_best_mandi, get_available_crops, get_best_mandi_smart
 
 router = APIRouter()
 
@@ -34,3 +35,26 @@ def best_mandi(crop: str):
     if not best:
         raise HTTPException(status_code=404, detail=f"'{crop}' ke liye data nahi mila.")
     return {"crop": crop, "best_mandi": best}
+
+
+@router.get("/best-mandi-smart/{crop}")
+def best_mandi_smart(crop: str, quantity_quintal: float = 1):
+    """
+    Transport cost factor in karke best NET PROFIT wali mandi suggest karta hai.
+    Example: /best-mandi-smart/wheat?quantity_quintal=5
+    """
+    result = get_best_mandi_smart(crop, quantity_quintal)
+    if not result:
+        raise HTTPException(status_code=404, detail=f"'{crop}' ke liye data nahi mila.")
+    return {"crop": crop, "quantity_quintal": quantity_quintal, **result}
+
+@router.get("/evaluate-offer/{crop}")
+def evaluate_offer(crop: str, offer_price: float, quantity_quintal: float = 1):
+    """
+    Trader ke offer ko evaluate karta hai aur negotiation advice deta hai.
+    Example: /evaluate-offer/onion?offer_price=1800&quantity_quintal=5
+    """
+    result = evaluate_trader_offer(crop, offer_price, quantity_quintal)
+    if not result:
+        raise HTTPException(status_code=404, detail=f"'{crop}' ke liye data nahi mila.")
+    return result

@@ -196,3 +196,51 @@ def get_available_crops(max_pages: int = 5):
 
     # Fallback
     return sorted([c.capitalize() for c in MOCK_MANDI_DATA.keys()])
+
+def evaluate_trader_offer(crop: str, offer_price: float, quantity_quintal: float = 1):
+    """
+    Trader ke offer ko mandi prices se compare karke advice deta hai.
+    Negotiation coach - Scenario 4 wala feature.
+    """
+    prices = get_mandi_prices(crop)
+    if not prices:
+        return None
+
+    # Average modal price nikal saari mandis ka
+    avg_price = sum(m["modal_price"] for m in prices) / len(prices)
+
+    # Best mandi bhi nikal lo comparison ke liye
+    best = max(prices, key=lambda x: x["modal_price"])
+
+    diff_from_avg = avg_price - offer_price
+    percent_diff = (diff_from_avg / avg_price) * 100 if avg_price > 0 else 0
+
+    # Decision logic
+    if percent_diff <= 0:
+        verdict = "accept"
+        advice = f"Yeh offer (₹{offer_price}) mandi average (₹{round(avg_price, 2)}) se behtar ya barabar hai. Accept kar sakte ho!"
+    elif percent_diff < 5:
+        verdict = "accept"
+        advice = f"Offer thoda kam hai mandi average se, but difference sirf {round(percent_diff, 1)}% hai - reasonable hai. Accept kar sakte ho ya thoda negotiate kar lo."
+    elif percent_diff < 15:
+        counter_price = round(avg_price * 0.97, 2)  # 3% margin negotiate ke liye
+        verdict = "counter"
+        advice = f"Yeh offer mandi average se {round(percent_diff, 1)}% kam hai. Counter karo ₹{counter_price}/quintal pe."
+    else:
+        counter_price = round(avg_price * 0.97, 2)
+        verdict = "reject_or_counter"
+        advice = f"Yeh offer mandi average se {round(percent_diff, 1)}% kam hai - bahut kam hai! Counter karo ₹{counter_price}/quintal pe, ya '{best['mandi']}, {best['state']}' mandi try karo jaha ₹{best['modal_price']}/quintal mil raha hai."
+
+    total_loss_if_accepted = round((avg_price - offer_price) * quantity_quintal, 2)
+
+    return {
+        "crop": crop,
+        "offer_price": offer_price,
+        "mandi_average_price": round(avg_price, 2),
+        "best_mandi": {"name": best["mandi"], "state": best["state"], "price": best["modal_price"]},
+        "percent_difference": round(percent_diff, 2),
+        "verdict": verdict,
+        "advice": advice,
+        "potential_loss_total": total_loss_if_accepted if total_loss_if_accepted > 0 else 0,
+        "quantity_quintal": quantity_quintal,
+    }

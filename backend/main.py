@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.mandi_routes import router as mandi_router
+from routes.scheme_routes import router as scheme_router
 
 app = FastAPI()
 
@@ -14,7 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(mandi_router)
-
+app.include_router(scheme_router)
 
 @app.get("/")
 def home():
